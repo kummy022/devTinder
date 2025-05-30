@@ -1,15 +1,32 @@
 const express = require("express");
+const User = require("./models/user");
+
 
 const app = express();
 
-app.use("/", (req, res)=>{
-  res.send("Hello welcome to NodeJs");
-} );
+const connectDB = require("./config/database");
 
-app.use("/profile", (req, res)=>{
-  res.send(" NodeJs profile");
-});
+app.use(express.json());
+app.post("/signUp", async( req, res)=>{
+  const user = new User(req.body)
+  try{
+    await user.save();
+    res.send("user data is added successfully");
+  } catch(err){
+    res.status(500).send("user data error")
+  };
+})
 
 
-app.listen(7777);
+connectDB().then(()=>{
+console.log("Database connection established");
+app.listen(3000, console.log("sever running successfully"));
+})
+.catch((err)=>{
+  console.error("connection not established");
+})
+
+
+
+
 

@@ -29,6 +29,31 @@ app.get("/user", async(req, res)=>{
   }  
 });
 
+app.delete("/user", async(req, res)=>{
+  const userId = req.body._id;
+  try{
+    const user = await User.findByIdAndDelete(userId);
+    res.send("user deleted successfully");
+  }catch(err){
+    res.status(404).send("user Id not found");
+
+  }
+});
+
+app.patch("/user",async(req, res)=>{
+  const userName = req.body.firstName;
+  
+  try{
+    const user = await User.findOneAndUpdate({firstName:userName}, {firstName: "kummy"});
+    if(!user){
+      res.send("user not found");
+    }
+    res.send("user updated successfully");
+  }catch(err){
+    res.status(500).send("user name not found")
+  };
+});
+
 connectDB().then(()=>{
 console.log("Database connection established");
 app.listen(3000, console.log("sever running successfully"));

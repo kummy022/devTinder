@@ -3,7 +3,6 @@ const User = require("./models/user");
 
 
 const app = express();
-
 const connectDB = require("./config/database");
 
 app.use(express.json());
@@ -15,8 +14,20 @@ app.post("/signUp", async( req, res)=>{
   } catch(err){
     res.status(500).send("user data error")
   };
-})
+});
 
+app.get("/user", async(req, res)=>{
+  // const userEmail = req.body.emailId;
+  // if(!userEmail){
+  //   res.send("email not found");
+  // }
+  try{
+      const user = await User.find()
+      res.send(user);
+  }catch(err){
+    res.status(500).send("something went wrong");
+  }  
+});
 
 connectDB().then(()=>{
 console.log("Database connection established");

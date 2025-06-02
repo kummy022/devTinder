@@ -4,11 +4,13 @@ const User = require("./models/user");
 
 const app = express();
 const connectDB = require("./config/database");
-
 app.use(express.json());
+
+
 app.post("/signUp", async( req, res)=>{
-  const user = new User(req.body)
+  
   try{
+    const user = new User(req.body)
     await user.save();
     res.send("user data is added successfully");
   } catch(err){
@@ -40,19 +42,30 @@ app.delete("/user", async(req, res)=>{
   }
 });
 
-app.patch("/user",async(req, res)=>{
-  const userName = req.body.firstName;
-  
-  try{
-    const user = await User.findOneAndUpdate({firstName:userName}, {firstName: "kummy"});
-    if(!user){
-      res.send("user not found");
+app.patch("/user/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const updates = req.body;
+
+    const ALLOWED_UPDATES = ["contact", "gender", "firstName", "lastName"];
+    const isUpdateAllowed = Object.keys(updates).every((key) =>
+      ALLOWED_UPDATES.includes(key)
+    );
+    if (!isUpdateAllowed) {
+      return res.status(400).send("Update is not allowed");
     }
-    res.send("user updated successfully");
-  }catch(err){
-    res.status(500).send("user name not found")
-  };
+    const user = await User.findOneAndUpdate({ _id: userId },updates,
+      { new: true, runValidators: true }
+    );
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.send({ message: "User updated successfully", user });
+  } catch (err) {
+    res.status(500).send("Error updating user: " + err.message);
+  }
 });
+
 
 connectDB().then(()=>{
 console.log("Database connection established");
